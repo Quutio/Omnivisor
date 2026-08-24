@@ -1,0 +1,24 @@
+[versions]
+kotlin = "2.4.10"
+spotless = "8.9.0"
+shadow = "9.6.1"
+adventure = "5.2.0"
+options = "1.1.0"
+fusion = "0.1-SNAPSHOT"
+harmony = "2.0.0-SNAPSHOT"
+velocity = "4.1.0-SNAPSHOT"
+
+[libraries]
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+options = { module = "net.kyori:option", version.ref = "options" }
+fusion-api = { module = "io.quut:fusion-api", version.ref = "fusion" }
+fusion-velocity = { module = "io.quut:fusion-velocity-api", version.ref = "fusion" }
+harmony-sponge = { module = "io.quut:harmony-sponge", version.ref = "harmony" }
+velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+sponge = { id = "org.spongepowered.gradle.plugin", version = "2.3.0" }
