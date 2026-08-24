@@ -79,6 +79,17 @@ subprojects {
 					this.description.set(project.description)
 				}
 			}
+
+			repositories {
+				maven {
+					this.name = "GitHubPackages"
+					this.url = uri("https://maven.pkg.github.com/Quutio/Omnivisor")
+					credentials {
+						this.username = System.getenv("GITHUB_ACTOR")
+						this.password = System.getenv("GITHUB_TOKEN")
+					}
+				}
+			}
 		}
 	}
 }
