@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent
+import com.velocitypowered.api.plugin.Dependency
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.proxy.ProxyServer
 import io.quut.fusion.velocity.api.IVelocityFusionAPI
@@ -12,7 +13,7 @@ import io.quut.omnivisor.api.IOmnivisorAPI
 import io.quut.omnivisor.velocity.command.ServerCommand
 import io.quut.omnivisor.velocity.util.Const
 
-@Plugin(id = Const.NAMESPACE, name = "Omnivisor", version = "1.0")
+@Plugin(id = Const.NAMESPACE, name = "Omnivisor", version = "1.0-SNAPSHOT", authors = ["Joni Aromaa (isokissa3)"], dependencies = [Dependency("fusion")])
 class VelocityOmnivisorPluginLoader @Inject internal constructor(private val proxy: ProxyServer)
 {
 	private val plugin: VelocityOmnivisorPlugin = VelocityOmnivisorPlugin()
