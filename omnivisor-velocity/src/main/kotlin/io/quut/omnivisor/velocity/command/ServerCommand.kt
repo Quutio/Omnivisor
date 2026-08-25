@@ -61,7 +61,7 @@ internal object ServerCommand
 
 		return BrigadierCommand(
 			BrigadierCommand.literalArgumentBuilder("omnivisor:server")
-				.requires { source -> source is Player && source.hasPermission("omnivisor.command.play") }
+				.requires { source -> source is Player && source.hasPermission("omnivisor.command.server") }
 				.then(BrigadierCommand.requiredArgumentBuilder(this.SERVER_ARGUMENT, StringArgumentType.string())
 					.then(BrigadierCommand.requiredArgumentBuilder(this.UNIVERSE_ARGUMENT, StringArgumentType.string())
 						.executes { context -> execute(context, context.source as Player) }
