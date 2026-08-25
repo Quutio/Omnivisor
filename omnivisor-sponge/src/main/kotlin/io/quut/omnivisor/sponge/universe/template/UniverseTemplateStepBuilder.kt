@@ -28,19 +28,19 @@ internal class UniverseTemplateStepBuilder<TInstance, TUniverse : IUniverse<TIns
 		this.chain<TNewState> { _, state -> function.apply(state) }
 
 	override fun <D> dependency(dependency: Class<D>, consumer: Consumer<D>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TState, TOut> =
-		this.chain { context, _ -> this.function.apply(context).thenCompose { context.globalProvider(dependency).whenSuccessAsync(context.executor) { dependency -> consumer.accept(dependency) } } }
+		this.chain { context, _ -> context.globalProvider(dependency).whenSuccessAsync(context.executor) { dependency -> consumer.accept(dependency) } }
 
 	override fun <D, TNewState> dependencyStep(dependency: Class<D>, function: Function<D, TNewState>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TNewState, TOut> =
-		this.chain<TNewState> { context, _ -> this.function.apply(context).thenCompose { context.globalProvider(dependency).thenApplyAsync(context.executor) { dependency -> function.apply(dependency) } } }
+		this.chain<TNewState> { context, _ -> context.globalProvider(dependency).thenApplyAsync(context.executor) { dependency -> function.apply(dependency) } }
 
 	override fun <D, TNewState> dependencyStep(dependency: Class<D>, function: BiFunction<D, TState, TNewState>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TNewState, TOut> =
-		this.chain<TNewState> { context, state -> this.function.apply(context).thenCompose { context.globalProvider(dependency).thenApplyAsync(context.executor) { dependency -> function.apply(dependency, state) } } }
+		this.chain<TNewState> { context, state -> context.globalProvider(dependency).thenApplyAsync(context.executor) { dependency -> function.apply(dependency, state) } }
 
 	override fun <D, TNewState> dependencyStepAsync(dependency: Class<D>, function: Function<D, CompletableFuture<TNewState>>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TNewState, TOut> =
-		this.chain<TNewState> { context, _ -> this.function.apply(context).thenCompose { context.globalProvider(dependency).thenComposeAsync(context.executor) { dependency -> function.apply(dependency) } } }
+		this.chain<TNewState> { context, _ -> context.globalProvider(dependency).thenComposeAsync(context.executor) { dependency -> function.apply(dependency) } }
 
 	override fun <D, TNewState> dependencyStepAsync(dependency: Class<D>, function: BiFunction<D, TState, CompletableFuture<TNewState>>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TNewState, TOut> =
-		this.chain<TNewState> { context, state -> this.function.apply(context).thenCompose { context.globalProvider(dependency).thenComposeAsync(context.executor) { dependency -> function.apply(dependency, state) } } }
+		this.chain<TNewState> { context, state -> context.globalProvider(dependency).thenComposeAsync(context.executor) { dependency -> function.apply(dependency, state) } }
 
 	override fun context(consumer: Consumer<TContext>): IUniverseTemplate.IStepBuilder<TInstance, TUniverse, TContainer, TContext, TConfig, TState, TOut> =
 		this.chain { context, _ -> consumer.accept(context) }
