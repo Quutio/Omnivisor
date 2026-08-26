@@ -28,6 +28,8 @@ import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent
+import org.spongepowered.api.network.channel.ChannelExceptionHandler
+import org.spongepowered.api.network.channel.NoResponseException
 import org.spongepowered.api.network.channel.raw.RawDataChannel
 import org.spongepowered.api.registry.DefaultedRegistryType
 import org.spongepowered.api.scheduler.TaskExecutorService
@@ -54,6 +56,7 @@ class SpongeOmnivisorPluginLoader @Inject internal constructor(
 	private fun onRegisterChannel(event: RegisterChannelEvent)
 	{
 		this.handshakeChannel = event.register(Const.HANDSHAKE_CHANNEL_KEY, RawDataChannel::class.java)
+		this.handshakeChannel.setExceptionHandler(ChannelExceptionHandler.logEverything().suppressIfFutureIsPresent(NoResponseException::class.java))
 	}
 
 	@Listener
