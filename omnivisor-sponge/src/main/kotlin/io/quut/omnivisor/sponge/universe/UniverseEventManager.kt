@@ -14,8 +14,10 @@ import org.spongepowered.api.event.action.LightningEvent
 import org.spongepowered.api.event.action.SleepingEvent
 import org.spongepowered.api.event.advancement.AdvancementEvent
 import org.spongepowered.api.event.block.ChangeBlockEvent
+import org.spongepowered.api.event.block.CollideBlockEvent
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.block.NotifyNeighborBlockEvent
+import org.spongepowered.api.event.block.ScheduleBlockUpdateEvent
 import org.spongepowered.api.event.block.TickBlockEvent
 import org.spongepowered.api.event.block.entity.BrewingEvent
 import org.spongepowered.api.event.block.entity.ChangeSignEvent
@@ -28,8 +30,10 @@ import org.spongepowered.api.event.entity.ChangeEntityEquipmentEvent
 import org.spongepowered.api.event.entity.ChangeEntityWorldEvent
 import org.spongepowered.api.event.entity.ConstructEntityEvent
 import org.spongepowered.api.event.entity.DamageCalculationEvent
+import org.spongepowered.api.event.entity.DestructEntityEvent
 import org.spongepowered.api.event.entity.ExpireEntityEvent
 import org.spongepowered.api.event.entity.HarvestEntityEvent
+import org.spongepowered.api.event.entity.IgniteEntityEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.entity.InvokePortalEvent
 import org.spongepowered.api.event.entity.ItemMergeWithItemEvent
@@ -46,20 +50,27 @@ import org.spongepowered.api.event.entity.explosive.DetonateExplosiveEvent
 import org.spongepowered.api.event.entity.explosive.PrimeExplosiveEvent
 import org.spongepowered.api.event.entity.living.AnimateHandEvent
 import org.spongepowered.api.event.entity.living.player.CooldownEvent
+import org.spongepowered.api.event.entity.living.player.KickPlayerEvent
 import org.spongepowered.api.event.entity.living.player.PlayerChangeClientSettingsEvent
 import org.spongepowered.api.event.entity.living.player.ResourcePackStatusEvent
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent
+import org.spongepowered.api.event.item.inventory.DropItemEvent
 import org.spongepowered.api.event.item.inventory.InteractItemEvent
+import org.spongepowered.api.event.item.inventory.TransferInventoryEvent
+import org.spongepowered.api.event.item.inventory.UpdateAnvilEvent
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent
+import org.spongepowered.api.event.message.PlayerChatEvent
 import org.spongepowered.api.event.network.ServerSideConnectionEvent
 import org.spongepowered.api.event.sound.PlaySoundEvent
 import org.spongepowered.api.event.world.ChangeWeatherEvent
+import org.spongepowered.api.event.world.ChangeWorldBorderEvent
 import org.spongepowered.api.event.world.ExplosionEvent
 import org.spongepowered.api.event.world.LoadWorldEvent
 import org.spongepowered.api.event.world.SaveWorldEvent
 import org.spongepowered.api.event.world.UnloadWorldEvent
 import org.spongepowered.api.event.world.chunk.ChunkEvent
+import org.spongepowered.api.world.Locatable
 import org.spongepowered.api.world.server.ServerWorld
 import org.spongepowered.plugin.PluginContainer
 import java.lang.invoke.MethodHandles
@@ -92,25 +103,32 @@ internal class UniverseEventManager @Inject constructor(
 			.mapping { e: ChangeInventoryEvent -> (e.cause().first(Entity::class.java)).getOrNull()?.let { e -> this.worlds[e.serverLocation().worldKey()] } }
 			.mapping { e: ChangeSignEvent -> this.worlds[e.sign().serverLocation().worldKey()] }
 			.mapping { e: ChangeWeatherEvent -> (e.universe() as? ServerWorld)?.let { e -> this.worlds[e.key()] } }
+			.mapping { e: ChangeWorldBorderEvent.Player -> this.worlds[e.player().serverLocation().worldKey()] }
+			.mapping { e: ChangeWorldBorderEvent.World -> this.worlds[e.world().key()] }
 			.mapping { e: ChunkEvent.WorldScoped -> this.worlds[e.worldKey()] }
+			.mapping { e: CollideBlockEvent -> this.worlds[e.targetLocation().worldKey()] }
 			.mapping { e: ConstructEntityEvent -> this.worlds[e.location().worldKey()] }
 			.mapping { e: CookingEvent -> this.worlds[e.blockEntity().serverLocation().worldKey()] }
 			.mapping { e: CooldownEvent -> this.worlds[e.player().serverLocation().worldKey()] }
 			.mapping { e: DamageCalculationEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: DefuseExplosiveEvent -> this.worlds[e.fusedExplosive().serverLocation().worldKey()] }
+			.mapping { e: DestructEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: DetonateExplosiveEvent -> this.worlds[e.explosive().serverLocation().worldKey()] }
+			.mapping { e: DropItemEvent -> (e.cause().first(Entity::class.java)).getOrNull()?.let { e -> this.worlds[e.serverLocation().worldKey()] } }
 			.mapping { e: ExecuteCommandEvent -> e.commandCause().location().getOrNull()?.let { l -> this.worlds[l.worldKey()] } }
 			.mapping { e: ExpireEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: ExplosionEvent -> this.worlds[e.explosion().serverLocation().worldKey()] }
 			.mapping { e: FishingEvent -> this.worlds[e.fishHook().serverLocation().worldKey()] }
 			.mapping { e: GoalEvent -> this.worlds[e.agent().serverLocation().worldKey()] }
 			.mapping { e: HarvestEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
+			.mapping { e: IgniteEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: InteractBlockEvent -> this.worlds[e.block().world()] }
 			.mapping { e: InteractContainerEvent -> this.worlds[e.container().viewer().serverLocation().worldKey()] }
 			.mapping { e: InteractEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: InteractItemEvent -> (e.cause().first(Entity::class.java)).getOrNull()?.let { e -> this.worlds[e.serverLocation().worldKey()] } }
 			.mapping { e: InvokePortalEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: ItemMergeWithItemEvent -> this.worlds[e.item().serverLocation().worldKey()] }
+			.mapping { e: KickPlayerEvent -> this.worlds[e.player().serverLocation().worldKey()] }
 			.mapping { e: LeashEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: LightningEvent -> (e.cause().first(Entity::class.java)).getOrNull()?.let { e -> this.worlds[e.serverLocation().worldKey()] } }
 			.mapping { e: LoadWorldEvent -> this.worlds[e.world().key()] }
@@ -118,18 +136,22 @@ internal class UniverseEventManager @Inject constructor(
 			.mapping { e: NotifyNeighborBlockEvent -> this.worlds[e.tickets().first().target().world()] }
 			.mapping { e: PlaySoundEvent -> this.worlds[e.location().worldKey()] }
 			.mapping { e: PlayerChangeClientSettingsEvent -> this.worlds[e.player().serverLocation().worldKey()] }
+			.mapping { e: PlayerChatEvent -> e.player().getOrNull()?.let { p -> this.worlds[p.serverLocation().worldKey()] } }
 			.mapping { e: PrimeExplosiveEvent -> this.worlds[e.fusedExplosive().serverLocation().worldKey()] }
 			.mapping { e: ResourcePackStatusEvent -> this.userManager.get(e.connection()) }
 			.mapping { e: RideEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: RotateEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: SaveWorldEvent -> this.worlds[e.world().key()] }
+			.mapping { e: ScheduleBlockUpdateEvent<*> -> this.worlds[e.tickets().first().block().serverLocation().worldKey()] }
 			.mapping { e: ServerSideConnectionEvent -> this.userManager.get(e.connection()) }
 			.mapping { e: SetAITargetEvent -> this.worlds[e.agent().serverLocation().worldKey()] }
 			.mapping { e: SleepingEvent -> this.worlds[e.bed().world()] }
 			.mapping { e: TameEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: TickBlockEvent -> this.worlds[e.block().world()] }
+			.mapping { e: TransferInventoryEvent -> this.worlds[((e.sourceInventory() as Locatable).world() as ServerWorld).key()] }
 			.mapping { e: UnleashEntityEvent -> this.worlds[e.entity().serverLocation().worldKey()] }
 			.mapping { e: UnloadWorldEvent -> this.worlds[e.world().key()] }
+			.mapping { e: UpdateAnvilEvent -> this.worlds[((e.inventory() as Locatable).world() as ServerWorld).key()] }
 			.mapping { e: UseItemStackEvent -> (e.cause().first(Entity::class.java)).getOrNull()?.let { e -> this.worlds[e.serverLocation().worldKey()] } }
 			.build()
 	}
